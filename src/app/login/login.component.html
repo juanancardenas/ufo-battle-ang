@@ -1,0 +1,15 @@
+<section>
+  <div class="card-title">
+    <img src="/assets/img/login.png" alt="Log-in" width="32" height="32">
+    <h2>Log-in</h2>
+  </div>
+  <form class="grid" id="login-form" novalidate>
+    <label for="email">User</label>
+    <input id="user" name="user" type="text" required autocomplete="user" value="user1"/>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required autocomplete="current-password" value="user1"/>
+    <button class="primary" id="send_login" type="submit">Log in</button>
+  </form>
+  <!-- Mensaje indicando si hay login o no -->
+  <div id="message" style="margin: 10px auto; width: 60%; text-align: center;"></div>
+</section>
