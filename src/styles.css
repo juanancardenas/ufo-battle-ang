@@ -20,7 +20,16 @@ body {
   font: 16px/1.5 system-ui, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-label { font-weight: 600; }
+.site-header,
+.site-footer {
+  background: var(--panel);
+}
+.site-footer {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+  color: #9aa0a6;
+}
 
 input, select, button, textarea {
   font: inherit;
@@ -33,33 +42,20 @@ input, select, button, textarea {
 
 button.primary {
   background: var(--brand);
-  color: #fff;
   border: none;
+  padding: .7rem 1rem;
+  border-radius: var(--radius);
+  color: white;
+  cursor: pointer;
 }
 
-.freeze {
-  pointer-events: none;
-  filter: grayscale(1) blur(1px);
-  transition: filter 0.3s ease;
-}
-
-.floating-text {
-  position: absolute;
-  font-size: 20px;
-  font-weight: bold;
-  animation: floatUp 0.8s ease-out forwards;
-  pointer-events: none;
-  z-index: 100;
+button.primary:hover {
+  background: #3e3acb;
 }
 
 @keyframes floatUp {
   0% { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(-30px); opacity: 0; }
-}
-
-.site-header,
-.site-footer {
-  background: var(--panel);
 }
 
 nav {
@@ -96,6 +92,10 @@ nav {
   border-radius: var(--radius);
 }
 
+.card-home-text {
+  flex: 7;
+}
+
 .card-home-image {
   flex: 3;
   display: flex;
@@ -111,3 +111,20 @@ nav {
 }
 
 .card-home-text { flex: 7; }
+
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1rem;
+  row-gap: 0.75rem;
+  align-items: center;
+  width: 50%;
+  margin: 0 auto;
+}
+.grid label {
+  justify-self: end;
+}
+.grid button {
+  grid-column: 1 / -1; /* hace que el botón ocupe todo el ancho */
+  justify-self: center;
+}

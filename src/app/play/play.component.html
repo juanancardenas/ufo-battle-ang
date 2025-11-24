@@ -1,16 +1,32 @@
-<section class="card">
-  <div id="play-div">
-    <!-- Contenido del juego -->
-    <div id="play-content">
-      <img id="missile" src="assets/img/missile.png" 
-           style="left:300px; bottom:5px; height:70px; width:40px; z-index:10;"/>
-      <div id="panelPoints">0</div>
-      <div id="panelTime">0</div>
+<section>
+  <div class="play-content" #playContent>
+    <!-- Añadir los UFOs -->
+     @for(u of ufos(); track u.id) {
+      <img class="ufo" [src]="u.src" [style.left.px]="u.x" [style.bottom.px]="u.y"/>
+     }
+    <!-- Misil -->
+    <img #missile class="missile" src="assets/img/missile.png"
+         [style.bottom.px]="missileY()" [style.left.px]="missileX()"/>
+    <!-- Marcador de puntos -->
+    <div class="panel-points" #panelPoints>{{ score }}</div>
+    <!-- Marcador de tiempo -->
+    <div class="panel-time" #panelTime>{{ time }}</div>
+    <!-- Panel para mostrar si se suman o se resta puntos tras acierto o fallo -->
+    <div class="floating-layer">
+      @for(s of floatingScores(); track s.id) {
+      <div class="floating-score" [style.left.px]="s.x" [style.top.px]="s.y" [style.color]="s.color" [style.fontSize.px]="s.size">
+        {{ s.value }}
+      </div>
+      }
     </div>
-
-    <!-- Game over que se activa cuando el cronómetro llegue a 0 -->
-    <div id="play-game-over" style="display:none;">
-      <h2>Game Over</h2>
-    </div>
+    <!-- Fin de juego -->
+     @if(endGame) {
+      <div class="game-over">
+        <h2>Game Over</h2>
+        <p><strong>The final score is: {{ score }}</strong></p>
+        <p>{{ text1 }}</p>
+        <p>{{ text2 }}</p>
+      </div>
+    }
   </div>
 </section>

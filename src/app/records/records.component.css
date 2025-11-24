@@ -1,0 +1,38 @@
+#table-records {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+#table-records table {
+  width: 50%;
+  border-collapse: collapse;
+  background-color: #1e1e1e;
+  color: #FFD700;
+  margin: 0 auto;
+}
+
+#table-records th,
+#table-records td {
+  border: 1px solid #444;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+#table-records th {
+  background-color: #333;
+  color: #00FFFF;
+  font-size: 16px;
+}
+
+#table-records tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+#table-records tr:hover {
+  background-color: #444;
+  color: #FF69B4;
+}
+
+#table-records td {
+  font-size: 16px;
+}

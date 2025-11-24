@@ -3,23 +3,19 @@
   <img src="/assets/img/preferences.png" alt="Preferences" width="32" height="32">
   <h2>Preferences</h2>
 </div>
-<form class="grid" id="pref-form">
+<form class="grid" id="pref-form" (ngSubmit)="save()">
   <label for="numberUfo">Number of UFOs: </label>
-  <select id="numberUfo" name="numberUfo">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
+  <select id="numberUfo" [(ngModel)]="model.numberUfo" name="numberUfo">
+    @for (n of [1,2,3,4,5]; track n) {
+      <option [value]="n">{{ n }}</option>
+    }
   </select>
-  
   <label for="time">Time (seconds): </label>
-  <select id="time" name="time">
-    <option value="60">60</option>
-    <option value="120">120</option>
-    <option value="180">180</option>
+  <select id="time" [(ngModel)]="model.time" name="time">
+    @for(t of [60,120,180]; track t) {
+      <option [value]="t">{{ t }}</option>
+    }
   </select>
-
-  <button class="primary" id="ok_preferences" type="button">Go!</button>
+  <button class="primary" type="submit">Go!</button>
 </form>
 </section>
