@@ -3,13 +3,18 @@
     <img src="/assets/img/login.png" alt="Log-in" width="32" height="32">
     <h2>Log-in</h2>
   </div>
+
   <form class="grid" id="login-form" novalidate>
-    <label for="email">User</label>
-    <input id="user" name="user" type="text" required autocomplete="user" value="user1"/>
+    <label for="user">User</label>
+    <input id="user" name="user" type="text" required autocomplete="user"
+           [(ngModel)]="username"/>
+
     <label for="password">Password</label>
-    <input id="password" name="password" type="password" required autocomplete="current-password" value="user1"/>
-    <button class="primary" id="send_login" type="submit">Log in</button>
+    <input id="password" name="password" type="password" required autocomplete="current-password"
+           [(ngModel)]="password"/>
+
+    <button class="primary" type="button" (click)="doLogin()">Log in</button>
   </form>
-  <!-- Mensaje indicando si hay login o no -->
-  <div id="message" style="margin: 10px auto; width: 60%; text-align: center;"></div>
+  <!-- Contenedor para mensajes de error -->
+  <div #errorContainer id="message" style="margin: 10px auto; width: 60%; text-align: center; background-color: white; border-radius: 6px;"></div>
 </section>

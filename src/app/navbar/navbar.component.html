@@ -8,7 +8,12 @@
           <td><a routerLink="play" routerLinkActive="active" ariaCurrentWhenActive="page"><img src="/assets/img/play.png" alt="Play" width="18" height="18">Play</a></td>
           <td><a routerLink="records" routerLinkActive="active" ariaCurrentWhenActive="page"><img src="/assets/img/records.png" alt="Records" width="18" height="18">Records</a></td>
           <td><a routerLink="register" routerLinkActive="active" ariaCurrentWhenActive="page"><img src="/assets/img/register.png" alt="Register" width="18" height="18">Register</a></td>
-          <td><a routerLink="login" routerLinkActive="active" ariaCurrentWhenActive="page"><img src="/assets/img/login.png" alt="Log-in" width="18" height="18">Log-in</a></td>
+          @if (!usrMgr.loggedIn()) {
+            <td><a routerLink="login" routerLinkActive="active" ariaCurrentWhenActive="page"><img src="/assets/img/login.png" alt="Log-in" width="18" height="18">Log-in</a></td>
+          }
+          @if(usrMgr.loggedIn()) {
+            <td><a (click)="logout()"><img src="/assets/img/logout.png" alt="Log-out" width="18" height="18">Log-out</a></td>
+          }
         </tr>
       </tbody>
     </table>

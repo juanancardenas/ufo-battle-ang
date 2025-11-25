@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { RouterLink } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
+import { UserService } from '../shared/service/user.service';
+import { TokenmgrService } from '../shared/service/tokenmgr.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,4 +12,11 @@ import { RouterLink } from "@angular/router";
 })
 export class NavbarComponent {
 
+  constructor(public usrMgr: UserService, private tokenMgr: TokenmgrService, private router: Router) {}
+
+  logout() {
+    this.tokenMgr.deleteToken();
+    this.usrMgr.setLogout();
+    this.router.navigate(['/home']);
+  }
 }

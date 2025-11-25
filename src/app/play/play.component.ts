@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { HostListener, inject, NgZone } from '@angular/core';
-import { signal } from '@angular/core';
+import { HostListener, inject, signal } from '@angular/core';
 import { PreferencesService } from '../shared/service/preferences.service';
 import { Ufo } from '../shared/model/ufo.model';
 import { FloatingScore } from '../shared/model/floating-score.model';
@@ -30,9 +29,6 @@ export class PlayComponent implements AfterViewInit {
   private gameLoop?: Subscription;   // Subscription a animationFrameScheduler
   private chronoId: any = null;
 
-  floatingScores = signal<FloatingScore[]>([]);
-  private floatingId = 0;
-
   score = 0;
   time = 60;
   endGame = false;
@@ -45,6 +41,8 @@ export class PlayComponent implements AfterViewInit {
   ufos = signal<Ufo[]>([]);
   missileY = signal(5);
   missileX = signal(300);
+  floatingScores = signal<FloatingScore[]>([]);
+  private floatingId = 0;
 
   /*
    * Inicializaciones antes de arrancar la vista
