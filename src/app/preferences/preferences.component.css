@@ -1,0 +1,5 @@
+.big-checkbox {
+  transform: scale(1.5);
+  margin-left: 0;
+  transform-origin: left center;
+}

@@ -1,0 +1,7 @@
+@if (toast(); as t) {
+  <div class="toast-container">
+    <div class="toast" [ngClass]="t.type">
+      {{ t.text }}
+    </div>
+  </div>
+}

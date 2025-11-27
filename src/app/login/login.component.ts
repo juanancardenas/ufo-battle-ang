@@ -1,7 +1,8 @@
-import { Component, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../shared/service/user.service';
 import { TokenmgrService } from '../shared/service/tokenmgr.service';
+import { ToastService } from '../shared/service/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -12,18 +13,16 @@ import { TokenmgrService } from '../shared/service/tokenmgr.service';
 })
 export class LoginComponent {
 
-  @ViewChild('errorContainer', { static: true }) errorContainer!: ElementRef;
+  private toast = inject(ToastService);
 
   username: string = '';
   password: string = '';
 
-  private messageTimeout: any;
-
-  constructor(private usrMgr: UserService, private tokenMgr: TokenmgrService, private renderer: Renderer2) {}
+  constructor(private usrMgr: UserService, private tokenMgr: TokenmgrService) {}
 
   doLogin(): void {
     if (!this.username || !this.password) {
-      this.showMessage('Introduzca usuario y password', true);
+      this.toast.show('Enter your user and password', 'error');
       return;
     }
 
@@ -37,48 +36,14 @@ export class LoginComponent {
           this.tokenMgr.deleteToken();
           this.tokenMgr.saveToken(token);
           this.usrMgr.setLogin();
-          this.showMessage('Login realizado con éxito.', false);
+          this.toast.show('Log in successfully', 'info');
         } else {
-          this.showMessage('Error en Login: Token no recibido. Hay una incidencia en la API. Pruebe más tarde.', true);
+          this.toast.show('Unexpected Log in error. No response from the API. Contact your administrator', 'error');
         }
       },
-      error: (err: any) => {
-        this.showMessage(`Error en Login: ${err?.message ?? err}`, true);
+      error: (error: any) => {
+        this.toast.show(`Error: ${error?.message ?? error}`, 'error');
       }
     });
-  }
-
-  private showMessage(message: string, isError: boolean) {
-    // Limpia contenido previo
-    this.renderer.setProperty(this.errorContainer.nativeElement, 'textContent', '');
-
-    // Crea un <p> para el mensaje
-    const p = this.renderer.createElement('p');
-    const text = this.renderer.createText(message);
-    this.renderer.appendChild(p, text);
-    this.renderer.appendChild(this.errorContainer.nativeElement, p);
-
-    if (!isError) {
-      this.renderer.addClass(p,"success-message");
-    } else {
-      this.renderer.addClass(p,"error-message");
-    }
-
-    // Limpiar cualquier timeout previo
-    if (this.messageTimeout) {
-      clearTimeout(this.messageTimeout);
-    }
-
-    // Ocultar el mensaje tras 5 segundos
-    this.messageTimeout = setTimeout(() => {
-      this.renderer.removeChild(this.errorContainer.nativeElement, p);
-      this.messageTimeout = null;
-    }, 5000);
-  }
-
-  ngOnDestroy() {
-    if (this.messageTimeout) {
-      clearTimeout(this.messageTimeout);
-    }
   }
 }

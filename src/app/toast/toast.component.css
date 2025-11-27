@@ -1,0 +1,27 @@
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translate(-50%);
+  z-index: 9999;
+  pointer-events: none; /* Para que no bloquee clics en la página */
+}
+
+.toast {
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  animation: fadeInOut 0.4s ease;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+}
+
+.toast.info    { background-color: #007bff; }
+.toast.success { background-color: #28a745; }
+.toast.warning { background-color: #ffc107; color: #333; }
+.toast.error   { background-color: #dc3545; }
+
+@keyframes fadeInOut {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

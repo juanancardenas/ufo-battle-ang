@@ -16,6 +16,12 @@
       <option [value]="t">{{ t }}</option>
     }
   </select>
+  <label for="sendResult">Send results</label>
+  <select id="sendResult" [(ngModel)]="model.sendResult" name="sendResult">
+  @for(s of [true,false]; track s) {
+    <option [value]="s">{{ s }}</option>
+  }
+  </select>
   <button class="primary" type="submit">Go!</button>
 </form>
 </section>

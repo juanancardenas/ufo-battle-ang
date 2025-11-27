@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import { HostListener, inject, signal } from '@angular/core';
 import { PreferencesService } from '../shared/service/preferences.service';
 import { Ufo } from '../shared/model/ufo.model';
 import { FloatingScore } from '../shared/model/floating-score.model';
 import { interval, animationFrameScheduler, Subscription } from 'rxjs';
+import { UserService } from '../shared/service/user.service';
+import { TokenmgrService } from '../shared/service/tokenmgr.service';
+import { ResultsService } from '../shared/service/results.service';
+import { ToastService } from '../shared/service/toast.service';
 
 @Component({
   selector: 'app-play',
@@ -13,50 +17,63 @@ import { interval, animationFrameScheduler, Subscription } from 'rxjs';
   templateUrl: './play.component.html',
   styleUrls: ['./play.component.css'],
 })
-export class PlayComponent implements AfterViewInit {
+export class PlayComponent implements OnInit, OnDestroy {
  
   @ViewChild('playContent') playContent!: ElementRef;
   @ViewChild('panelPoints') panelPoints!: ElementRef;
   @ViewChild('panelTime') panelTime!: ElementRef;
 
+  private toast = inject(ToastService);
+
   // Definición de constantes
   private UFO_HSTEP = 4;   // Velocidad de los UFO
   private MARGIN = 8;
 
-  // Inyectamos el servicio de preferencias
-  private prefsService = inject(PreferencesService);
+  private prefsService = inject(PreferencesService); // Inyectar servicio de preferencias
+  private userService = inject(UserService); // Inyectar servicio de login
+  private tokenService = inject(TokenmgrService);  // Inyectar servicio de gestión de token
+  private resultsService = inject(ResultsService);   // Inyectar servicio de resultados
 
   private gameLoop?: Subscription;   // Subscription a animationFrameScheduler
   private chronoId: any = null;
+  private prefs: any;
 
-  score = 0;
-  time = 60;
-  endGame = false;
-  text1 = '';
-  text2 = '';
+  score: number = 0;
+  time: number = 60;
+  endGame: boolean = false;
+  text1: string = '';
+  text2: string = '';
 
-  private alreadyShoot = false;
-  private numUfos = 1;
+  private alreadyShoot: boolean = false;
+  private numUfos: number = 1;
+  private sendResult: boolean = false;
 
   ufos = signal<Ufo[]>([]);
   missileY = signal(5);
   missileX = signal(300);
   floatingScores = signal<FloatingScore[]>([]);
-  private floatingId = 0;
+  private floatingId: number = 0;
 
   /*
    * Inicializaciones antes de arrancar la vista
    */
-  ngAfterViewInit(): void {
-    const prefs = this.prefsService.getPreferences();
-    this.time = prefs.time;
-    this.numUfos = prefs.numberUfo;
+  ngOnInit(): void {
+    this.prefs = this.prefsService.getPreferences();
+    this.time = this.prefs.time || 60;
+    this.numUfos = this.prefs.numberUfo || 1;
+    this.sendResult = this.prefs.sendResult;
 
     setTimeout(() => {
       this.createUfos();
       this.startGameLoop();
       this.startChrono();
     });
+  }
+
+  // Limpieza al destruir el componente
+  ngOnDestroy() {
+    this.gameLoop?.unsubscribe();
+    clearInterval(this.chronoId);
   }
 
   /*
@@ -91,7 +108,7 @@ export class PlayComponent implements AfterViewInit {
 
       newUfos.push({
         id: i,
-        x: Math.random() * (w - 60),
+        x: Math.random() * (w - 60 - 30),
         y,
         step: Math.random() < 0.5 ? -this.UFO_HSTEP : this.UFO_HSTEP,
         src: 'assets/img/ufo.png',
@@ -160,7 +177,6 @@ export class PlayComponent implements AfterViewInit {
       this.alreadyShoot = false;
       this.missileY.set(5);
       this.score -= 25;
-      this.panelPoints.nativeElement.innerText = this.score;
 
       // -25 Puntos flotantes desde contador de puntos
       const panel = this.panelPoints.nativeElement;
@@ -187,7 +203,6 @@ export class PlayComponent implements AfterViewInit {
   private onUfoHit(ufo: Ufo) {
     this.alreadyShoot = false;
     this.score += 100;
-    this.panelPoints.nativeElement.innerText = this.score;
 
     // +100 Puntos flotantes desde ufo golpeado
     const contentH = this.playContent.nativeElement.clientHeight;
@@ -225,16 +240,12 @@ export class PlayComponent implements AfterViewInit {
    */
   private startChrono() {
     this.chronoId = setInterval(() => {
-
       if (this.time < 1) {
         this.time = 0;
-        this.panelTime.nativeElement.innerText = this.time;
-        this.finishGame();
-        clearInterval(this.chronoId);
-        this.chronoId = null;
+        setTimeout(() => this.finishGame()); // Envolver estas acciones, ya que tocan la pantalla
+        if (this.sendResult) this.sendResultAPI();
       } else {
         this.time--;
-        this.panelTime.nativeElement.innerText = this.time;
       }
     }, 1000);
   }
@@ -243,19 +254,55 @@ export class PlayComponent implements AfterViewInit {
    * Fin de juego: Detiene todos los procesos, muestra la puntuación final
    */
   private finishGame() {
-    if (this.endGame) return;
     this.endGame = true;
+    clearInterval(this.chronoId);
+    this.chronoId = null;
 
     this.gameLoop?.unsubscribe();
     this.gameLoop = undefined;
 
-    const ratio = parseInt(sessionStorage.getItem('pref_time') || '60') / 60;
+    const ratio = this.prefs.time / 60;
     if (ratio > 1) this.text1 = `Time penalty: ${this.score}`+ ` / ` + `${ratio}`;
     this.score = Math.round(this.score / ratio);
-    this.panelPoints.nativeElement.innerText = this.score;
 
     if (this.numUfos > 1) this.text2 = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
     this.score = this.score - ((this.numUfos - 1) * 50);
-    this.panelPoints.nativeElement.innerText = this.score;
+  }
+
+  /*
+   * Enviar resultados al API. Si el usuario está logado y ha marcado la opción 
+   * en la pantalla de preferencias, se enviará el resultado de la partida al API
+   */
+  private sendResultAPI() {
+    if(this.userService.isLoggedIn()) {
+      const token: string = this.tokenService.getToken()!;
+      if ( token == null ) {
+        this.toast.show('You do not have any token, your result will not be sent', 'warning');
+        return;
+      }
+      this.resultsService.sendResults(this.score, this.numUfos, this.prefs.time, token).subscribe({
+        next: (response: any) => {
+          if (response.status == "201") {
+            // Actualizar el token para tener otros 10 minutos
+            const token: any = response.headers.get('Authorization');
+            if (token) {
+              this.tokenService.deleteToken();
+              this.tokenService.saveToken(response.headers.get("Authorization"));
+            }
+            // Mensaje a usuario
+            this.toast.show('Your result has been sent successfully', 'success');
+          }
+        },
+        error: (error: any) => {
+          if (error.status === 401) {
+            this.toast.show(`Authorization error: ${error.status} - Login again`, 'error');
+          } else {
+            this.toast.show(`Error: ${error.message ?? error}`, 'error');
+          }
+        }
+      })
+    } else {
+      this.toast.show('You are not currenty logged in, your result will not be sent', 'warning');
+    }
   }
 }
