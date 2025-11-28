@@ -10,6 +10,7 @@ export class UserService {
 
   private http = inject(HttpClient);
 
+  private username: string = '';
   loggedIn = signal(false);
 
   userLogin(user : string, password : string): Observable<any> {
@@ -36,8 +37,9 @@ export class UserService {
     return this.http.post(`${BASE_URL}/users`, body.toString(), { headers: headers, observe: 'response' });
   }
 
-  setLogin() {
+  setLogin(username: string) {
     this.loggedIn.set(true);
+    this.username = username;
   }
 
   setLogout() {
@@ -46,5 +48,9 @@ export class UserService {
 
   isLoggedIn(): boolean {
     return this.loggedIn();
+  }
+
+  getUsername(): string {
+    return this.username;
   }
 }

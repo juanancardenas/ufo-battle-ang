@@ -35,7 +35,7 @@ export class LoginComponent {
         if (token) {
           this.tokenMgr.deleteToken();
           this.tokenMgr.saveToken(token);
-          this.usrMgr.setLogin();
+          this.usrMgr.setLogin(this.username);
           this.toast.show('Log in successfully', 'info');
         } else {
           this.toast.show('Unexpected Log in error. No response from the API. Contact your administrator', 'error');

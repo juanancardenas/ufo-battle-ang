@@ -1,38 +1,58 @@
-#table-records {
-  margin-top: 20px;
-  overflow-x: auto;
+#main {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 10px;
+  padding: 10px;
 }
 
-#table-records table {
-  width: 50%;
+#table-records-general,
+#table-records-user {
+  overflow-x: auto;
+  flex: 1;
+  max-width: 85%;
+}
+
+#table-records-general table,
+#table-records-user table {
+  width: 80%;
   border-collapse: collapse;
-  background-color: #1e1e1e;
-  color: #FFD700;
+  background-color: ghostwhite;
+  color: darkgreen;
   margin: 0 auto;
 }
 
-#table-records th,
-#table-records td {
+#table-records-general th,
+#table-records-general td,
+#table-records-user th,
+#table-records-user td {
   border: 1px solid #444;
   padding: 8px 12px;
   text-align: center;
+  font-size: 14px;
 }
 
-#table-records th {
+#table-records-general th,
+#table-records-user th {
   background-color: #333;
-  color: #00FFFF;
-  font-size: 16px;
+  color: whitesmoke;
+  font-size: 14px;
 }
 
-#table-records tr:nth-child(even) {
-  background-color: #2a2a2a;
+#table-records-general tr:nth-child(even),
+#table-records-user tr:nth-child(even) {
+  background-color: lightgrey;
 }
 
-#table-records tr:hover {
-  background-color: #444;
+#table-records-general tr:hover,
+#table-records-user tr:hover {
+  background-color: #555;
   color: #FF69B4;
 }
 
-#table-records td {
-  font-size: 16px;
+#table-records-general tbody tr:first-child,
+#table-records-user tbody tr:first-child {
+  background-color: #555;
+  color: #FF69B4;
 }

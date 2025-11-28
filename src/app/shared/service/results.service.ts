@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BASE_URL } from '../model/constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { TokenmgrService } from './tokenmgr.service';
 
 @Injectable({
   providedIn: 'root',
@@ -9,6 +10,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class ResultsService {
  
   private http = inject(HttpClient);
+  private tokenService = inject(TokenmgrService);
 
   sendResults(score: number, ufos: number, time: number, token: string): Observable<any> {
     
@@ -25,5 +27,23 @@ export class ResultsService {
     return this.http.post(`${BASE_URL}/records`, body.toString(),
       { headers: headers, observe: 'response' }
     );
+  }
+
+  getTopScores(): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.get(`${BASE_URL}/records`, { headers: headers, observe: 'response' });
+  }
+
+  getUserScores(username: string): Observable<any> {  
+    //console.log(this.tokenService.getToken());
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': this.tokenService.getToken()!
+    });
+
+    return this.http.get(`${BASE_URL}/records/${username}`, { headers: headers, observe: 'response' });
   }
 }

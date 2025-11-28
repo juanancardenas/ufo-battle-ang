@@ -30,7 +30,7 @@ export class RegisterComponent {
   }
 
   // Check and register a new user
-  registerNewUser(f?: NgForm) {
+  registerNewUser() {
     if (!this.isFormValid()) {
       this.toast.show('Please enter all the fields correctly', 'error');
       return;
@@ -55,6 +55,8 @@ export class RegisterComponent {
   }
 
   isUserRegistered() { 
+    if (this.form.userName === '') return; // Evitar llamar al API con username = ''
+    
     this.userService.userCheck(this.form.userName).subscribe({
       next: (response: any) => {
         const token: any = response.headers.get('Authorization');
@@ -71,7 +73,7 @@ export class RegisterComponent {
         console.log(error);
         if (error.status === 404) {
         } else {
-          this.toast.show('Unexpected error, contact with your administrator', 'error');
+          this.toast.show('Internal server error, contact with your administrator', 'error');
           console.log('Error: ' + error);
         }
       }

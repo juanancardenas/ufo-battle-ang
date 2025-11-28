@@ -242,8 +242,7 @@ export class PlayComponent implements OnInit, OnDestroy {
     this.chronoId = setInterval(() => {
       if (this.time < 1) {
         this.time = 0;
-        setTimeout(() => this.finishGame()); // Envolver estas acciones, ya que tocan la pantalla
-        if (this.sendResult) this.sendResultAPI();
+        this.finishGame();
       } else {
         this.time--;
       }
@@ -261,12 +260,17 @@ export class PlayComponent implements OnInit, OnDestroy {
     this.gameLoop?.unsubscribe();
     this.gameLoop = undefined;
 
-    const ratio = this.prefs.time / 60;
-    if (ratio > 1) this.text1 = `Time penalty: ${this.score}`+ ` / ` + `${ratio}`;
-    this.score = Math.round(this.score / ratio);
+    setTimeout( () => {
+      const ratio = this.prefs.time / 60;
+      if (ratio > 1) this.text1 = `Time penalty: ${this.score}`+ ` / ` + `${ratio}`;
+      this.score = Math.round(this.score / ratio);
 
-    if (this.numUfos > 1) this.text2 = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
-    this.score = this.score - ((this.numUfos - 1) * 50);
+      if (this.numUfos > 1) this.text2 = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
+      this.score = this.score - ((this.numUfos - 1) * 50);
+      console.log("Score(1): " + this.score);
+
+      if (this.sendResult) this.sendResultAPI();
+    })
   }
 
   /*
@@ -280,6 +284,7 @@ export class PlayComponent implements OnInit, OnDestroy {
         this.toast.show('You do not have any token, your result will not be sent', 'warning');
         return;
       }
+      console.log("Score(2): " + this.score);
       this.resultsService.sendResults(this.score, this.numUfos, this.prefs.time, token).subscribe({
         next: (response: any) => {
           if (response.status == "201") {
