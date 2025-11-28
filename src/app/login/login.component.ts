@@ -15,10 +15,10 @@ export class LoginComponent {
 
   private toast = inject(ToastService);
 
+  constructor(private usrMgr: UserService, private tokenMgr: TokenmgrService) {}
+
   username: string = '';
   password: string = '';
-
-  constructor(private usrMgr: UserService, private tokenMgr: TokenmgrService) {}
 
   doLogin(): void {
     if (!this.username || !this.password) {
