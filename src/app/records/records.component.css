@@ -19,7 +19,7 @@
   width: 80%;
   border-collapse: collapse;
   background-color: ghostwhite;
-  color: darkgreen;
+  color: rgb(2, 51, 2);
   margin: 0 auto;
 }
 
@@ -48,11 +48,11 @@
 #table-records-general tr:hover,
 #table-records-user tr:hover {
   background-color: #555;
-  color: #FF69B4;
+  color: pink;
 }
 
 #table-records-general tbody tr:first-child,
 #table-records-user tbody tr:first-child {
   background-color: #555;
-  color: #FF69B4;
+  color: gold;
 }

@@ -21,7 +21,6 @@ export class PlayComponent implements OnInit, OnDestroy {
  
   @ViewChild('playContent') playContent!: ElementRef;
   @ViewChild('panelPoints') panelPoints!: ElementRef;
-  @ViewChild('panelTime') panelTime!: ElementRef;
 
   private toast = inject(ToastService);
 
@@ -30,19 +29,13 @@ export class PlayComponent implements OnInit, OnDestroy {
   private MARGIN = 8;
 
   private prefsService = inject(PreferencesService); // Inyectar servicio de preferencias
-  private userService = inject(UserService); // Inyectar servicio de login
-  private tokenService = inject(TokenmgrService);  // Inyectar servicio de gestión de token
+  private userService = inject(UserService);         // Inyectar servicio de login
+  private tokenService = inject(TokenmgrService);    // Inyectar servicio de gestión de token
   private resultsService = inject(ResultsService);   // Inyectar servicio de resultados
 
   private gameLoop?: Subscription;   // Subscription a animationFrameScheduler
   private chronoId: any = null;
   private prefs: any;
-
-  score: number = 0;
-  time: number = 60;
-  endGame: boolean = false;
-  text1: string = '';
-  text2: string = '';
 
   private alreadyShoot: boolean = false;
   private numUfos: number = 1;
@@ -53,20 +46,27 @@ export class PlayComponent implements OnInit, OnDestroy {
   missileX = signal(300);
   floatingScores = signal<FloatingScore[]>([]);
   private floatingId: number = 0;
+  score = signal(0);
+  time: number = 60;
+  endGame: boolean = false;
+  text1: string = '';
+  text2: string = '';
 
   /*
    * Inicializaciones antes de arrancar la vista
    */
   ngOnInit(): void {
+    // Leer preferencias
     this.prefs = this.prefsService.getPreferences();
     this.time = this.prefs.time || 60;
     this.numUfos = this.prefs.numberUfo || 1;
-    this.sendResult = this.prefs.sendResult;
+    this.sendResult = this.prefs.sendResult || false;
 
+    // Lanzar asíncronamente: Crear Ufos, iniciar cronómetro y loop de animación
     setTimeout(() => {
       this.createUfos();
-      this.startGameLoop();
       this.startChrono();
+      this.startGameLoop();
     });
   }
 
@@ -74,17 +74,6 @@ export class PlayComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.gameLoop?.unsubscribe();
     clearInterval(this.chronoId);
-  }
-
-  /*
-   * Crea un loop de frames vía subscribe, lo que hace que se muevan
-   * los UFOs y se mueva el misil cuando el usuario use el teclado
-   */
-  private startGameLoop() {
-    this.gameLoop = interval(0, animationFrameScheduler).subscribe(() => {
-      this.moveUfos();
-      if (this.alreadyShoot) this.updateMissile();
-    });
   }
 
   /*
@@ -118,6 +107,42 @@ export class PlayComponent implements OnInit, OnDestroy {
     this.ufos.set(newUfos);
   }
 
+  /*
+   * Cronómetro: Lee el tiempo de juego de las preferencias y lanza el
+   * contador regresivo. Al llegar a 0, finaliza el juego
+   */
+  private startChrono() {
+    this.chronoId = setInterval(() => {
+      if (this.time < 1) {
+        this.time = 0;
+        this.finishGame();
+      } else {
+        this.time--;
+      }
+    }, 1000);
+  }
+
+  /*
+   * Crea un loop de frames vía subscribe, lo que hace que se muevan
+   * los UFOs y se mueva el misil cuando el usuario use el teclado
+   */
+  private startGameLoop() {
+    this.gameLoop = interval(0, animationFrameScheduler).subscribe(() => {
+      this.moveUfos();
+      if (this.alreadyShoot) this.updateMissile();
+    });
+  }
+
+  // Control del teclado vía evento: Flechas para mover el misil, espacio para disparar
+  @HostListener('window:keydown', ['$event'])
+  onKey(e: KeyboardEvent) {
+    if (this.endGame || this.alreadyShoot) return;
+    
+    if (e.key === 'ArrowLeft') this.moveMissile(-5);
+    if (e.key === 'ArrowRight') this.moveMissile(5);
+    if (e.key === ' ') this.pullTrigger();
+  }
+
   // Método asociado al ufo para que se mueve en horizontal
   private moveUfos() {
     const w = this.playContent.nativeElement.clientWidth;
@@ -129,18 +154,6 @@ export class PlayComponent implements OnInit, OnDestroy {
         return { ...ufo, x: ufo.x + step, step };
       })
     );
-  }
-
-  /*
-   * Método de control del teclado: Flechas para mover el misil, espacio para disparar
-   */
-  @HostListener('window:keydown', ['$event'])
-  onKey(e: KeyboardEvent) {
-    if (this.endGame || this.alreadyShoot) return;
-    
-    if (e.key === 'ArrowLeft') this.moveMissile(-5);
-    if (e.key === 'ArrowRight') this.moveMissile(5);
-    if (e.key === ' ') this.pullTrigger();
   }
 
   // Mueve el misil
@@ -176,7 +189,7 @@ export class PlayComponent implements OnInit, OnDestroy {
     if (nextY > contentH) {
       this.alreadyShoot = false;
       this.missileY.set(5);
-      this.score -= 25;
+      this.score.update(v => v - 25);
 
       // -25 Puntos flotantes desde contador de puntos
       const panel = this.panelPoints.nativeElement;
@@ -202,7 +215,7 @@ export class PlayComponent implements OnInit, OnDestroy {
   // Gestión del impacto con un UFO
   private onUfoHit(ufo: Ufo) {
     this.alreadyShoot = false;
-    this.score += 100;
+    this.score.update(v => v + 100);
 
     // +100 Puntos flotantes desde ufo golpeado
     const contentH = this.playContent.nativeElement.clientHeight;
@@ -235,21 +248,6 @@ export class PlayComponent implements OnInit, OnDestroy {
   }
 
   /*
-   * Cronómetro: Lee el tiempo de juego de las preferencias y lanza el
-   * contador regresivo. Al llegar a 0, finaliza el juego
-   */
-  private startChrono() {
-    this.chronoId = setInterval(() => {
-      if (this.time < 1) {
-        this.time = 0;
-        this.finishGame();
-      } else {
-        this.time--;
-      }
-    }, 1000);
-  }
-
-  /*
    * Fin de juego: Detiene todos los procesos, muestra la puntuación final
    */
   private finishGame() {
@@ -262,12 +260,11 @@ export class PlayComponent implements OnInit, OnDestroy {
 
     setTimeout( () => {
       const ratio = this.prefs.time / 60;
-      if (ratio > 1) this.text1 = `Time penalty: ${this.score}`+ ` / ` + `${ratio}`;
-      this.score = Math.round(this.score / ratio);
+      if (ratio > 1) this.text1 = `Time penalty: ${this.score()}`+ ` / ` + `${ratio}`;
+      this.score.update(v => Math.round(v / ratio));
 
       if (this.numUfos > 1) this.text2 = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
-      this.score = this.score - ((this.numUfos - 1) * 50);
-      console.log("Score(1): " + this.score);
+      this.score.update(v => v - ((this.numUfos - 1) * 50));
 
       if (this.sendResult) this.sendResultAPI();
     })
@@ -284,15 +281,14 @@ export class PlayComponent implements OnInit, OnDestroy {
         this.toast.show('You do not have any token, your result will not be sent', 'warning');
         return;
       }
-      console.log("Score(2): " + this.score);
-      this.resultsService.sendResults(this.score, this.numUfos, this.prefs.time, token).subscribe({
+
+      this.resultsService.sendResults(this.score(), this.numUfos, this.prefs.time, token).subscribe({
         next: (response: any) => {
           if (response.status == "201") {
             // Actualizar el token para tener otros 10 minutos
             const token: any = response.headers.get('Authorization');
             if (token) {
-              this.tokenService.deleteToken();
-              this.tokenService.saveToken(response.headers.get("Authorization"));
+              this.userService.increaseSession(response.headers.get("Authorization"));
             }
             // Mensaje a usuario
             this.toast.show('Your result has been sent successfully', 'success');

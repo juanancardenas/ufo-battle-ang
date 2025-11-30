@@ -1,8 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { UserService } from '../shared/service/user.service';
 import { TokenmgrService } from '../shared/service/tokenmgr.service';
 import { ToastService } from '../shared/service/toast.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -19,8 +21,18 @@ export class LoginComponent {
 
   username: string = '';
   password: string = '';
+  userSubscription?: Subscription;
+  private router = inject(Router);
 
-  doLogin(): void {
+  // Limpieza al destruir el componente
+  ngOnDestroy() {
+    this.userSubscription?.unsubscribe();
+  }
+
+  // Hacer login
+  doLogin(event?: Event): void {
+    if(event) event.preventDefault();
+
     if (!this.username || !this.password) {
       this.toast.show('Enter your user and password', 'error');
       return;
@@ -29,20 +41,23 @@ export class LoginComponent {
     // Subscribirse al servicio de Usuarios con el usuario / password introducidos por el usuario.
     // Hacer next: Obtener el token de autorización de la cabecera y guardarlo vía servicio 
     // gestor de token. Se borrará el que haya previo, si lo hay, y se guarda el nuevo.
-    this.usrMgr.userLogin(this.username, this.password).subscribe({
+    this.userSubscription = this.usrMgr.userLogin(this.username, this.password).subscribe({
       next: (response: any) => {
         const token: any = response.headers.get('Authorization');
         if (token) {
-          this.tokenMgr.deleteToken();
-          this.tokenMgr.saveToken(token);
-          this.usrMgr.setLogin(this.username);
+          this.usrMgr.createSession(this.username, token);
           this.toast.show('Log in successfully', 'info');
+          this.router.navigate(['/preferences']); // Se navega a preferences para el usuario inicie el juego
         } else {
           this.toast.show('Unexpected Log in error. No response from the API. Contact your administrator', 'error');
         }
       },
       error: (error: any) => {
-        this.toast.show(`Error: ${error?.message ?? error}`, 'error');
+        if (error.status == 401) {
+          this.toast.show('Authorization error, check your user and password are correct', 'error');
+        } else {
+          this.toast.show(`Error: ${error?.message ?? error}`, 'error');
+        }
       }
     });
   }

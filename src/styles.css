@@ -53,11 +53,6 @@ button.primary:hover {
   background: #3e3acb;
 }
 
-@keyframes floatUp {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(-30px); opacity: 0; }
-}
-
 nav {
   max-width: var(--content);
   margin: 0 auto;
@@ -76,41 +71,11 @@ nav {
   border-radius: var(--radius);
   padding: 1rem;
 }
-
 .card-title {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
-.card-home {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  background: var(--panel);
-  border-radius: var(--radius);
-}
-
-.card-home-text {
-  flex: 7;
-}
-
-.card-home-image {
-  flex: 3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.card-home-image img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  border-radius: var(--radius);
-}
-
-.card-home-text { flex: 7; }
 
 .grid {
   display: grid;
@@ -125,6 +90,6 @@ nav {
   justify-self: end;
 }
 .grid button {
-  grid-column: 1 / -1; /* hace que el botón ocupe todo el ancho */
+  grid-column: 1 / -1;
   justify-self: center;
 }

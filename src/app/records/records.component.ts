@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, inject, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { DatePipe, CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { ResultsService } from '../shared/service/results.service';
 import { UserService } from '../shared/service/user.service';
@@ -8,42 +7,59 @@ import { Score } from '../shared/model/score.model';
 import { ToastService } from '../shared/service/toast.service';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-records',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, CommonModule],
   templateUrl: './records.component.html',
-  styleUrl: './records.component.css',
+  styleUrls: ['./records.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RecordsComponent implements OnInit, OnDestroy {
+
   private resultsServices = inject(ResultsService);
   private userService = inject(UserService);
   private toastService = inject(ToastService);
-  private changeDetection = inject(ChangeDetectorRef);
+  private cdr = inject(ChangeDetectorRef);
 
-  public subscriptions: Subscription[] = [];
-  public topScores: Score[] = [];
-  public userScores: Score[] = [];
-  public isLogged: boolean = false;
+  protected topScores: Score[] = [];
+  protected userScores: Score[] = [];
+  protected isLogged: boolean = false;
 
+  private subscriptions: Subscription[] = [];
+  private username: string = '';
+
+  // Inicializaciones y chequeos
   ngOnInit(): void {
+    this.topScores = [];
+    this.userScores = [];
+    this.isLogged = this.userService.isLoggedIn();
+    this.username = this.userService.getUsername();
+  }
+
+  // Limpieza de subscripciones
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.length = 0;
+  }
+
+  // Buscar datos de resultados
+  ngAfterContentInit(): void {
     this.subscriptions.push(this.getTopScores());
-    if (this.userService.isLoggedIn()) {
+
+    if ((this.isLogged) && (this.username)) {
       this.subscriptions.push(this.getUserScores());
-      this.isLogged = true;
     }
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
+  /*
+   * Recuperar las 10 mejores puntuaciones de todos los usuarios via API
+   */
   getTopScores(): Subscription {
     return this.resultsServices.getTopScores().subscribe({
       next: (response: any) => {
-        if (response.status === 200) {
+        if (response.status === 200 && response.body) {
           this.topScores = response.body as Score[];
-          this.changeDetection.markForCheck();
+          this.cdr.markForCheck();
           //console.log('Top Scores:', this.topScores);
         } else {
           this.toastService.show('Unexpected response from API in getTopScores', 'info');
@@ -55,12 +71,15 @@ export class RecordsComponent implements OnInit, OnDestroy {
     });
   }
 
+  /*
+   * Recuperar las 10 mejores puntuaciones del usuario logado via API
+   */
   getUserScores(): Subscription {
-    return this.resultsServices.getUserScores(this.userService.getUsername()).subscribe({
+    return this.resultsServices.getUserScores(this.username).subscribe({
       next: (response: any) => {
-        if (response.status === 200) {
+        if (response.status === 200 && response.body) {
           this.userScores = response.body as Score[];
-          this.changeDetection.markForCheck();
+          this.cdr.markForCheck();
           //console.log('User Scores:', this.userScores);
         } else {
           this.toastService.show('Unexpected response from API in getUserScores', 'info');

@@ -8,7 +8,7 @@
     <img #missile class="missile" src="assets/img/missile.png"
          [style.bottom.px]="missileY()" [style.left.px]="missileX()"/>
     <!-- Marcador de puntos -->
-    <div class="panel-points" #panelPoints>{{ score }}</div>
+    <div class="panel-points" #panelPoints>{{ score() }}</div>
     <!-- Marcador de tiempo -->
     <div class="panel-time" #panelTime>{{ time }}</div>
     <!-- Panel para mostrar si se suman o se resta puntos tras acierto o fallo -->
@@ -23,9 +23,11 @@
      @if(endGame) {
       <div class="game-over">
         <h2>Game Over</h2>
-        <p><strong>The final score is: {{ score }}</strong></p>
-        <p>{{ text1 }}</p>
-        <p>{{ text2 }}</p>
+        <div class="game-over-p-wrapper">
+          <p><strong>The final score is: {{ score() }}</strong></p>
+          <p>{{ text1 }}</p>
+          <p>{{ text2 }}</p>
+        </div>
       </div>
     }
   </div>
