@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { BASE_URL, TIME_TOKEN } from '../model/constants';
 import { TokenmgrService } from './tokenmgr.service';
 import { ToastService } from './toast.service';
@@ -11,6 +12,7 @@ import { ToastService } from './toast.service';
 export class UserService {
 
   private http = inject(HttpClient);
+  private router = inject(Router);
   private tokenMgr = inject(TokenmgrService);
   private toast = inject(ToastService);
 
@@ -103,6 +105,7 @@ export class UserService {
     this.tokenMgr.deleteToken();
     this.isLogged.set(false);
     clearTimeout(this.logoutTimer);
+    if (this.router.url != '/play') this.router.navigateByUrl('/login');
   }
 
   // Indica si el usuario está logado, es decir, tiene token válido
