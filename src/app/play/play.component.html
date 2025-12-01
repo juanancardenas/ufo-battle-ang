@@ -1,5 +1,5 @@
 <section>
-  <div class="play-content" #playContent>
+  <div id="play-div" class="play-content" #playContent tabindex="0">
     <!-- Añadir los UFOs -->
      @for(u of ufos(); track u.id) {
       <img class="ufo" [src]="u.src" [style.left.px]="u.x" [style.bottom.px]="u.y"/>
@@ -25,8 +25,8 @@
         <h2>Game Over</h2>
         <div class="game-over-p-wrapper">
           <p><strong>The final score is: {{ score() }}</strong></p>
-          <p>{{ text1 }}</p>
-          <p>{{ text2 }}</p>
+          <p>{{ timePenalty }}</p>
+          <p>{{ ufoPenalty }}</p>
         </div>
       </div>
     }

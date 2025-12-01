@@ -18,6 +18,5 @@ export class NavbarComponent {
   logout() {
     this.usrMgr.closeSession();
     this.router.navigate(['/home']);
-    this.toast.show("Log out realizado satisfactoriamente","info");
   }
 }

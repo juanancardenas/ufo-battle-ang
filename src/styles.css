@@ -18,11 +18,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font: 16px/1.5 system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  user-select: none;
 }
 
 .site-header,
 .site-footer {
   background: var(--panel);
+  user-select: none;
 }
 .site-footer {
   margin-top: 2rem;

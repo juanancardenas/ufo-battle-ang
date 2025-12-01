@@ -5,6 +5,7 @@
   box-sizing: border-box;
   background: var(--panel);
   border-radius: var(--radius);
+  user-select: none;
 }
 
 .card-home-text {

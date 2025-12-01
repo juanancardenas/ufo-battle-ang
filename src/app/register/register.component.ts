@@ -39,7 +39,7 @@ export class RegisterComponent {
   }
 
   // Chequea y registra un nuevo usuario vía API
-  registerNewUser() {
+  registerNewUser(regForm: NgForm) {
     if (!this.isFormValid()) {
       this.toast.show('Please enter all the fields correctly', 'error');
       return;
@@ -59,29 +59,41 @@ export class RegisterComponent {
     }
 
     this.registerUser(); // Registar nuevo usuario
-    this.resetForm();    // Refrescar formulario
+    regForm.reset();     // Refrescar formulario
   }
 
+  // Valida que el usuario sólo contenga números, letras y guiones.
+  isValidUsername(username: string): boolean {
+    const regex = /^[a-zA-Z0-9_-]+$/;
+    return regex.test(username);
+  }
+  
   // Chequea si el usuario existe en el API
-  isUserRegistered() { 
-    if (this.form.userName === '') return; // Evitar llamar al API con username = ''
-    
+  isUserRegistered(regForm: NgForm) { 
+    if (!this.isValidUsername(this.form.userName) || !this.form.userName) {
+      regForm.reset();
+      return;
+    }
+
     this.subscriptions.push(
       this.userService.userCheck(this.form.userName).subscribe({
         next: (response: any) => {
           const token: any = response.headers.get('Authorization');
           console.log(token);
-          if (response.status === 200) {
+          if (response.status == 200) {
             this.toast.show('User already exists', 'error');
+            regForm.reset(); // Refrescar formulario
           }
           else {
-            this.toast.show('Unexpected response from the API, contact with your administrator', 'error');
+            this.toast.show('Unexpected response from the API, contact with your administrator', 'info');
             console.log('Response: ' + response);
           }
         },
         error: (error: any) => {
           console.log(error);
-          if (error.status === 404) {
+          if (error.status == 404) {
+            // Nothing to do... the username can be used in the register
+            //console.log("404: ", error.error);
           } else {
             this.toast.show('Internal server error, contact with your administrator', 'error');
             console.log('Error: ' + error);
@@ -93,35 +105,33 @@ export class RegisterComponent {
 
   // Registrar el nuevo usuario llamando al API
   private registerUser() {
-
+    
     this.subscriptions.push(
       this.userService.registerUser(this.form.userName, this.form.password, this.form.emailAddress).subscribe({
         next: (response: any) => {
-          const token: any = response.headers.get('Authorization');
-          console.log(token);
-          this.toast.show('Registration submitted', 'success');
+          if ( response.status == 201 )
+            this.toast.show('Registration submitted', 'success');
+          else {
+            this.toast.show('Unexpected response from the API, contact with your administrator', 'info');
+            console.log('Response: ' + response);
+          }
         },
         error: (error: any) => {
-          console.log(error);
-          if (error.status === 400) {
-            this.toast.show('No username or email or password', 'error');
-          } else {
-            if ( error.status === 409 )
+          switch (error.status) {
+            case 400:
+              this.toast.show('No username or email or password', 'error');
+              break;
+
+            case 409:
               this.toast.show('Duplicated user name', 'error');
-            else {
-              console.log('Internal server error: ' + error);
-            }
+              break;
+
+            default:
+              this.toast.show('Internal server error: ' + error, 'error');
+              break;
           }
         }
       })
     );
-  }
-
-  // Resetea los campos del formulario
-  private resetForm() {
-    this.form.userName = '';
-    this.form.emailAddress = '';
-    this.form.password = '';
-    this.form.repeatPassword = '';
   }
 }

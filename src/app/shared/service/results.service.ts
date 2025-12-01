@@ -12,6 +12,10 @@ export class ResultsService {
   private http = inject(HttpClient);
   private tokenService = inject(TokenmgrService);
 
+  /*
+   * Realiza un POST con los resultados a enviar al API. Los valores number
+   * son convertidos en String porque así lo requiere el contrato.
+   */
   sendResults(score: number, ufos: number, time: number, token: string): Observable<any> {
     
     const body = new URLSearchParams();
@@ -29,21 +33,31 @@ export class ResultsService {
     );
   }
 
+  /*
+   * Realiza un GET para obtener los 10 mejores resultados indistintamente
+   * del usuario logado.
+   */
   getTopScores(): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
 
-    return this.http.get(`${BASE_URL}/records`, { headers: headers, observe: 'response' });
+    return this.http.get(`${BASE_URL}/records`, 
+      { headers: headers, observe: 'response' }
+    );
   }
 
+  /*
+   * Realiza un GET para obtener los 10 mejores resultados del usuario logado.
+   */
   getUserScores(username: string): Observable<any> {  
-    //console.log(this.tokenService.getToken());
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': this.tokenService.getToken()!
+      'Authorization': this.tokenService.getToken() ?? ''
     });
 
-    return this.http.get(`${BASE_URL}/records/${username}`, { headers: headers, observe: 'response' });
+    return this.http.get(`${BASE_URL}/records/${username}`, 
+      { headers: headers, observe: 'response' }
+    );
   }
 }

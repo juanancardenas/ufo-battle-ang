@@ -3,7 +3,7 @@
   <img src="/assets/img/preferences.png" alt="Preferences" width="32" height="32">
   <h2>Preferences</h2>
 </div>
-<form class="grid" id="pref-form" (ngSubmit)="save()">
+<form class="grid" id="pref-form" method="post" novalidate (ngSubmit)="save($event)" (keydown.enter)="save($event)">
   <label for="numberUfo">Number of UFOs: </label>
   <select id="numberUfo" [(ngModel)]="model.numberUfo" name="numberUfo">
     @for (n of [1,2,3,4,5]; track n) {

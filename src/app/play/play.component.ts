@@ -49,8 +49,8 @@ export class PlayComponent implements OnInit, OnDestroy {
   score = signal(0);
   time: number = 60;
   endGame: boolean = false;
-  text1: string = '';
-  text2: string = '';
+  timePenalty: string = '';
+  ufoPenalty: string = '';
 
   /*
    * Inicializaciones antes de arrancar la vista
@@ -62,12 +62,16 @@ export class PlayComponent implements OnInit, OnDestroy {
     this.numUfos = this.prefs.numberUfo || 1;
     this.sendResult = this.prefs.sendResult || false;
 
-    // Lanzar asíncronamente: Crear Ufos, iniciar cronómetro y loop de animación
+    // Crear Ufos, iniciar cronómetro y loop de animación
     setTimeout(() => {
       this.createUfos();
       this.startChrono();
       this.startGameLoop();
     });
+  }
+
+  ngAfterViewContent() {
+    this.panelPoints.nativeElement.focus(); // Para evitar movimientos de cursor
   }
 
   // Limpieza al destruir el componente
@@ -137,7 +141,8 @@ export class PlayComponent implements OnInit, OnDestroy {
   @HostListener('window:keydown', ['$event'])
   onKey(e: KeyboardEvent) {
     if (this.endGame || this.alreadyShoot) return;
-    
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') e.preventDefault();
+
     if (e.key === 'ArrowLeft') this.moveMissile(-5);
     if (e.key === 'ArrowRight') this.moveMissile(5);
     if (e.key === ' ') this.pullTrigger();
@@ -260,10 +265,10 @@ export class PlayComponent implements OnInit, OnDestroy {
 
     setTimeout( () => {
       const ratio = this.prefs.time / 60;
-      if (ratio > 1) this.text1 = `Time penalty: ${this.score()}`+ ` / ` + `${ratio}`;
+      if (ratio > 1) this.timePenalty = `Time penalty: ${this.score()}`+ ` / ` + `${ratio}`;
       this.score.update(v => Math.round(v / ratio));
 
-      if (this.numUfos > 1) this.text2 = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
+      if (this.numUfos > 1) this.ufoPenalty = `Number of UFOs penalty: -${(this.numUfos - 1) * 50}`;
       this.score.update(v => v - ((this.numUfos - 1) * 50));
 
       if (this.sendResult) this.sendResultAPI();

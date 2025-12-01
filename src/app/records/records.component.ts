@@ -48,6 +48,8 @@ export class RecordsComponent implements OnInit, OnDestroy {
 
     if ((this.isLogged) && (this.username)) {
       this.subscriptions.push(this.getUserScores());
+    } else {
+      this.toastService.show("User is not logged in, therefore no user results to be displayed");
     }
   }
 
@@ -55,6 +57,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
    * Recuperar las 10 mejores puntuaciones de todos los usuarios via API
    */
   getTopScores(): Subscription {
+
     return this.resultsServices.getTopScores().subscribe({
       next: (response: any) => {
         if (response.status === 200 && response.body) {
@@ -75,6 +78,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
    * Recuperar las 10 mejores puntuaciones del usuario logado via API
    */
   getUserScores(): Subscription {
+
     return this.resultsServices.getUserScores(this.username).subscribe({
       next: (response: any) => {
         if (response.status === 200 && response.body) {

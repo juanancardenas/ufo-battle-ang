@@ -3,9 +3,9 @@
     <img src="/assets/img/login.png" alt="Log-in" width="32" height="32">
     <h2>Log-in</h2>
   </div>
-  <form class="grid" id="login-form" method="post" novalidate (ngSubmit)="doLogin($event)">
+  <form class="grid" id="login-form" method="post" novalidate (ngSubmit)="doLogin($event, logForm)" #logForm="ngForm">
     <label for="user">User</label>
-    <input id="user" name="user" type="text" [(ngModel)]="username"/>
+    <input id="user" name="user" #usernameInput type="text" [(ngModel)]="username"/>
     <label for="password">Password</label>
     <input id="password" name="password" type="password" [(ngModel)]="password"/>
     <button class="primary" type="submit">Log in</button>

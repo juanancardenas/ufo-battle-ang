@@ -20,7 +20,9 @@ export class PreferencesComponent {
     this.model = this.prefsService.getPreferences();
   }
 
-  save(): void {
+  save(event?: Event): void {
+    if(event) event.preventDefault();
+    
     this.prefsService.savePreferences(this.model);
     this.router.navigateByUrl('/play');
   }

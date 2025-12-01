@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, ViewChild, ElementRef } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../shared/service/user.service';
 import { TokenmgrService } from '../shared/service/tokenmgr.service';
@@ -17,6 +17,8 @@ export class LoginComponent {
 
   private toast = inject(ToastService);
 
+  @ViewChild('usernameInput') usernameInput!: ElementRef<HTMLInputElement>;
+
   constructor(private usrMgr: UserService, private tokenMgr: TokenmgrService) {}
 
   username: string = '';
@@ -30,10 +32,12 @@ export class LoginComponent {
   }
 
   // Hacer login
-  doLogin(event?: Event): void {
+  doLogin(event: Event, logForm: NgForm): void {
     if(event) event.preventDefault();
 
     if (!this.username || !this.password) {
+      logForm.reset();
+      this.usernameInput.nativeElement.focus();
       this.toast.show('Enter your user and password', 'error');
       return;
     }
@@ -58,6 +62,8 @@ export class LoginComponent {
         } else {
           this.toast.show(`Error: ${error?.message ?? error}`, 'error');
         }
+        logForm.reset();
+        this.usernameInput.nativeElement.focus();
       }
     });
   }

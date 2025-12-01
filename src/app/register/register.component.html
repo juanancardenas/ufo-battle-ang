@@ -3,11 +3,11 @@
     <img src="/assets/img/register.png" alt="Register" width="32" height="32">
     <h2>Register a new user</h2>
   </div>
-  <form class="grid" id="reg-form" method="post" novalidate (ngSubmit)="registerNewUser()">
+  <form class="grid" id="reg-form" method="post" novalidate (ngSubmit)="registerNewUser(regForm)" #regForm="ngForm">
     <label for="reg-user">User</label>
-    <input id="reg-user" name="user" type="text" required [(ngModel)] = "form.userName" (blur)="isUserRegistered()"/>
+    <input id="reg-user" name="user" type="text" required [(ngModel)] = "form.userName" (blur)="isUserRegistered(regForm)"/>
     <label for="reg-email">Email</label>
-    <input id="reg-email" name="email" type="email" required [(ngModel)] = "form.emailAddress" (blur)="isUserRegistered()"/>
+    <input id="reg-email" name="email" type="email" required [(ngModel)] = "form.emailAddress" (blur)="isUserRegistered(regForm)"/>
     <label for="reg-pass">Password</label>
     <input id="reg-pass" name="password" type="password" #password required minlength="8" [(ngModel)] = "form.password"/>
     <label for="reg-repeat-pass">Repeat password</label>
