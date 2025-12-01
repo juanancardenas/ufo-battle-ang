@@ -35,7 +35,7 @@ export class RegisterComponent {
 
   // Check all the fields has a value
   private isFormValid(): boolean {
-    return Object.values(this.form).every(v => v.trim() !== '');
+    return Object.values(this.form).every(v => (v ?? '').toString().trim() !== '');
   }
 
   // Chequea y registra un nuevo usuario vía API

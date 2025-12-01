@@ -70,10 +70,6 @@ export class PlayComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngAfterViewContent() {
-    this.panelPoints.nativeElement.focus(); // Para evitar movimientos de cursor
-  }
-
   // Limpieza al destruir el componente
   ngOnDestroy() {
     this.gameLoop?.unsubscribe();
