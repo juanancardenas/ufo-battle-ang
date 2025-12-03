@@ -17,6 +17,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
+  pointer-events: none;
 }
 
 .card-home-image img {
@@ -24,6 +26,8 @@
   max-height: 100%;
   object-fit: contain;
   border-radius: var(--radius);
+  user-select: none;
+  pointer-events: none;
 }
 
 .card-home-text { flex: 7; }
