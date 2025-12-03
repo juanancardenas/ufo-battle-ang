@@ -78,8 +78,6 @@ export class RegisterComponent {
     this.subscriptions.push(
       this.userService.userCheck(this.form.userName).subscribe({
         next: (response: any) => {
-          const token: any = response.headers.get('Authorization');
-          console.log(token);
           if (response.status == 200) {
             this.toast.show('User already exists', 'error');
             regForm.reset(); // Refrescar formulario

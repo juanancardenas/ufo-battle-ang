@@ -62,7 +62,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.status === 200 && response.body) {
           this.topScores = response.body as Score[];
-          this.cdr.markForCheck();
+          this.cdr.markForCheck();  // Forzar refresco de pantalla
           //console.log('Top Scores:', this.topScores);
         } else {
           this.toastService.show('Unexpected response from API in getTopScores', 'info');
@@ -83,7 +83,7 @@ export class RecordsComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.status === 200 && response.body) {
           this.userScores = response.body as Score[];
-          this.cdr.markForCheck();
+          this.cdr.markForCheck();  // Forzar refresco de pantalla
           //console.log('User Scores:', this.userScores);
         } else {
           this.toastService.show('Unexpected response from API in getUserScores', 'info');

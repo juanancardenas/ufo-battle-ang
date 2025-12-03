@@ -8,5 +8,4 @@ import { Component } from '@angular/core';
   styleUrl: './notfound.component.css',
 })
 export class NotfoundComponent {
-
 }

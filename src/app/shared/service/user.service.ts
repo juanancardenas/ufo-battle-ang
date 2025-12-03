@@ -38,7 +38,7 @@ export class UserService {
   }
 
   /*
-   * Obtener token desde del API a partir de usuario y password
+   * Realiza un GET para obtener token desde el API a partir del usuario y password
    * introducidos en el login de la aplicación
    */
   userLogin(user : string, password : string): Observable<any> {
@@ -51,7 +51,7 @@ export class UserService {
   }
 
   /*
-   * Chequea si el usuario existe en el API. Se lanza desde el
+   * Realiza un GET para Chequear si el usuario existe en el API. Se lanza desde el
    * formulario de registro de usuario
    */
   userCheck(user : string): Observable<any> {
@@ -60,7 +60,8 @@ export class UserService {
   }
 
   /*
-   * Registro de un nuevo usuario
+   * Realiza un POST para registrar un nuevo usuario, con los tres parámetros que
+   * requiere el API en tipo string
    */
   registerUser(user : string, password : string, email: string): Observable <any> {
     const headers = new HttpHeaders({
@@ -71,7 +72,7 @@ export class UserService {
     body.set('username', user);
     body.set('email', email);
     body.set('password', password);
-    console.log("Body: " + body.toString());
+    //console.log("Body: " + body.toString());
 
     return this.http.post(`${BASE_URL}/users`, body.toString(), { headers: headers, observe: 'response' });
   }
@@ -123,7 +124,7 @@ export class UserService {
     return sessionStorage.getItem('username') ?? '';
   }
 
-  // Prepara el auto logout en base al tiempo que se le pase
+  // Prepara el auto logout en base al tiempo que se le pase por parámetro
   private setAutoLogout(ms: number) {
     if (this.logoutTimer) clearTimeout(this.logoutTimer);
     this.logoutTimer = setTimeout(() => {
